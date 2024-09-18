@@ -1,0 +1,118 @@
+---
+title: "FInal Project"
+date: "2024-07-17"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    social: menu
+    source_code: embed
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{R include=FALSE}
+
+library(ISLR)
+library(flexdashboard)
+```
+
+```{R include=FALSE}
+
+MLB_ballparks <- read.csv("ballparks.csv")
+
+```
+
+```{R include=FALSE}
+summary(MLB_ballparks)
+```
+
+```{R include=FALSE}
+
+library(shiny)
+library(tidyverse)
+
+```
+
+# Introduction
+```{R echo=FALSE}
+names(MLB_ballparks)
+```
+  This project aims to determine whether stadiums have an effect on the number of home runs in baseball. Many baseball fans say that the number of home runs varies depending on the stadium. Some people say it is due to differences in altitude, while others claim it is affected by the height of the fence, so this is a data analysis project to confirm this.
+
+The data used in this project is titled MLB_ballparks.csv. This data contains variables related to baseball stadiums. Representative data includes data such as home runs, fence height, and altitude for each stadium.
+
+# Short project
+## Inputs {.sidebar}
+```{R, echo = FALSE}
+inputPanel(
+  selectInput("xvar", "X-axis Variable:", choices=names(MLB_ballparks)),
+  selectInput("color", "Color Variable:", choices=names(MLB_ballparks))
+)
+```
+
+## Output
+```{R, echo = FALSE}
+
+
+renderPlot({
+  ggplot(data = MLB_ballparks, aes_string(x = input$xvar , y = MLB_ballparks$hr_park_effects, color = input$color)) + geom_point() + geom_smooth() + labs(x=input$xvar, y = "HR Park Effects", title=paste("Scatter plot of", input$xvar, "vs. HR Park Effects"))
+})
+
+```
+
+# Training
+
+## Model 1: Multiple Linear Regression with all columns
+
+```{R echo=FALSE}
+lm.fit=lm(hr_park_effects~.-team_name-ballpark,data=MLB_ballparks)
+summary(lm.fit)
+```
+
+```{r echo=FALSE}
+par(mfrow=c(2,2))
+plot(lm.fit)
+```
+
+ 
+## Model 2: Multiple Linear Regression with mixed 
+
+```{R echo = FALSE}
+lm.fit=lm((hr_park_effects)~.-team_name-ballpark-avg_temp-extra_distance+min_wall_height*max_wall_height+left_field*center_field*right_field,data=MLB_ballparks)
+summary(lm.fit)
+```
+
+
+## Model 3: Fixing hr_park_effects Logistically
+
+```{R echo = FALSE}
+lm.fit=lm(log(hr_park_effects)~.-team_name-ballpark,data=MLB_ballparks)
+summary(lm.fit)
+```
+
+
+## Random Forest
+```{r echo = FALSE}
+library(randomForest)
+model2<-randomForest(hr_park_effects~.-team_name-ballpark, data=MLB_ballparks)
+importance(model2)
+print(model2)
+```
+
+
+# Conclusion
+
+The conclusion of the last short project was that there was no significant correlation between the stadium and the number of home runs. These conclusions remain the same for this final project. In this project, we analyzed it using four methods: Multiple Linear Regression with all columns, Multiple Linear Regression with mixed, Fixing hr_park_effects Logistically, and Random Forest. As a result, we checked again through several methods, but there was no significant correlation between the stadium and the number of home runs. Through this, we can see that the story that many people say that home runs are more likely to occur depending on the stadium is a false rumor, and that it is not only the variables related to the stadium that affect home runs, but also other variables.
+
+
+
+
+
+
+
+
+
+
